@@ -1,10 +1,11 @@
+import {ZhouCompound,ShangWorksite,ChuTerrace} from './PeriodArchitecture';
 import {useEffect,useMemo,useRef,type ReactNode} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as T from 'three';
 import {Blocks,Box,Stick,Mat,Basket,Jar,Hit,type Block} from './DioramaPrimitives';
 import type {ActionClock} from './exhibit-state';
 import {bellStrike} from './bell-demo';
-import {PreQinGround,ZhouArchitecture,ShangArchitecture,ChuArchitecture,bellFloor} from './PreQinArchitecture';
+import {PreQinGround,bellFloor} from './PreQinArchitecture';
 type Props={value:()=>number;variant:number;wrap:(id:string,children:ReactNode)=>ReactNode;clock:ActionClock};
 const green='#586f61',gold='#a99a65',wood='#71543b';
 const noise=(x:number,z:number)=>{const n=Math.sin(x*127.1+z*311.7)*43758.5453;return n-Math.floor(n);};
@@ -33,7 +34,7 @@ export function FeastCourt({value,wrap,clock}:Props){
  const grain=useRef<T.Group>(null),ladle=useRef<T.Group>(null),lid=useRef<T.Group>(null),plaque=useRef<T.Group>(null);
  const grains=useMemo(()=>Array.from({length:70},(_,i):Block=>({p:[Math.sin(i*2.4)*Math.sqrt(i/70)*.29,.56+noise(i,1)*.055,Math.cos(i*2.4)*Math.sqrt(i/70)*.29],s:[.032,.025,.035],c:i%3?'#c6ae72':'#dac68c'})),[]);
  useFrame(()=>{const v=value(),p=phase(v,0);if(grain.current)grain.current.scale.setScalar(Math.max(.001,p));if(ladle.current){ladle.current.visible=clock.running&&clock.index===0;ladle.current.position.set(-2+p*1.15,.7+Math.sin(p*Math.PI)*.7,1.1);ladle.current.rotation.z=-Math.sin(p*Math.PI)*.6;}if(lid.current){const t=phase(v,1);lid.current.position.set(t*.95,.815*(1-t)+.04*t+Math.sin(t*Math.PI)*.45,t*.25);lid.current.rotation.z=0;}if(plaque.current){const read=phase(v,2);plaque.current.rotation.x=-read*.45;plaque.current.position.y=.5+read*.2;}});
- return <><PreQinGround plan='zhou'/>{wrap('setting',<ZhouArchitecture/>)}
+ return <><PreQinGround plan='zhou'/><ZhouCompound wrap={wrap}/>
  <group position={[-.8,.035,1.3]}><Mat w={3.4} d={2}/>{[-1.15,1.15].map(x=><Box key={x} p={[x,.17,0]} s={[.2,.3,1.15]} c={wood}/>)}<Box p={[0,.35,0]} s={[3.1,.12,1.5]} c='#806449'/></group>
  {wrap('gui',<group position={[-.85,.46,1.1]}><Gui/><group ref={grain}><Blocks data={grains}/></group></group>)}
  {wrap('tripod',<group position={[1.8,.045,1]}><Ding/><group ref={lid} position={[0,.815,0]}><mesh castShadow><latheGeometry args={[[[0,.15],[.12,.14],[.3,.09],[.46,.025],[.48,0],[.47,-.025],[.27,.055],[0,.12]].map(([x,y])=>new T.Vector2(x,y)),48]}/><Bronze/></mesh><Hoop r={.07} y={.16} t={.018}/></group><Hit s={[1.3,1.5,1.25]}/></group>)}
@@ -48,7 +49,7 @@ function MouldHalf({right=false}:{right?:boolean}){return <group><Box p={[0,.8,0
 export function CastingYard({value,wrap,clock}:Props){
  const left=useRef<T.Group>(null),right=useRef<T.Group>(null),core=useRef<T.Group>(null),metal=useRef<T.Group>(null),vessel=useRef<T.Group>(null),stream=useRef<T.Mesh>(null);
  useFrame(()=>{const v=value(),shut=phase(v,0)*(1-phase(v,2)),p=phase(v,1),r=phase(v,2),lift=Math.sin(p*Math.PI);if(left.current)left.current.position.x=-1.12+shut*.59;if(right.current)right.current.position.x=1.12-shut*.59;if(core.current){core.current.position.y=r*.9;core.current.scale.setScalar(Math.max(.001,1-r));}if(metal.current)metal.current.scale.y=Math.max(.001,p);if(vessel.current){vessel.current.position.set(-2.65+lift*2.15,.32+lift*1.7,1.1-lift*.25);vessel.current.rotation.z=-lift*.72;}if(stream.current)stream.current.visible=clock.running&&clock.index===1&&p>.26&&p<.76;});
- return <><PreQinGround plan='shang'/>{wrap('store',<ShangArchitecture/>)}
+ return <><PreQinGround plan='shang'/><ShangWorksite wrap={wrap}/>
  <Box p={[0,.06,1]} s={[3.4,.1,2.2]} c='#a79677'/>{wrap('mould',<group position={[0,.12,1]}><group ref={left} position={[-1.12,0,0]}><MouldHalf/></group><group ref={right} position={[1.12,0,0]}><MouldHalf right/></group><group ref={core}><Box p={[0,.83,0]} s={[.64,.68,.49]} c='#9f8865'/></group><group ref={metal}><Ding square fresh/></group></group>)}
  <Box p={[-2.65,.13,1.1]} s={[.82,.25,.75]} c='#968164'/>{wrap('crucible',<group ref={vessel} position={[-2.65,.32,1.1]}><Bowl r={.3} h={.38}/><mesh position={[0,.31,0]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[.235,32]}/><meshStandardMaterial color='#cc8a40' emissive='#b86123' emissiveIntensity={.3}/></mesh><Stick a={[-.4,.18,0]} b={[.4,.18,0]} r={.035} c='#756048'/><Hit s={[.85,.8,.85]}/></group>)}
  <mesh ref={stream} position={[-.18,1.58,1.05]} rotation={[0,0,.2]} visible={false}><cylinderGeometry args={[.023,.016,.72,10]}/><meshStandardMaterial color='#dba158' emissive='#ad5a22' emissiveIntensity={.4}/></mesh>
@@ -66,7 +67,7 @@ function Bell(){
 export function BellCourt({value,wrap,clock}:Props){
  const selected=useRef<T.Group>(null),mallet=useRef<T.Group>(null),tablet=useRef<T.Group>(null);
  useFrame(()=>{const v=value(),strike=bellStrike(clock.index,clock.phase*clock.duration),hit=clock.running?strike.amount:0,side=strike.note===1;if(selected.current)selected.current.rotation.z=clock.running?Math.sin(clock.phase*30)*.009*(1-clock.phase):0;if(mallet.current){mallet.current.position.set(side?.18-hit*.2:-.4,1.04,side?1.14:1.7-hit*.3);mallet.current.rotation.set(-.3+hit*.28,side?Math.PI/2:0,.15);}if(tablet.current)tablet.current.rotation.x=-phase(v,2)*.3;});
- return <><PreQinGround plan='chu'/>{wrap('gallery',<ChuArchitecture/>)}<group position={[0,bellFloor,0]}>
+ return <><PreQinGround plan='chu'/><ChuTerrace wrap={wrap}/><group position={[0,bellFloor,0]}>
  {wrap('rack',<group>{[[-3,-1.6],[2.7,-1.6],[2.7,1.5]].map(([x,z],i)=><group key={i}><Box p={[x,.2,z]} s={[.7,.34,.68]} c={green}/><Box p={[x,1.6,z]} s={[.16,2.8,.19]} c={wood}/><Box p={[x,2.99,z]} s={[.46,.14,.36]} c={gold}/><Box p={[x,1.55,z]} s={[.29,.24,.32]} c={gold}/></group>)}<Box p={[-.15,2.91,-1.6]} s={[6.5,.2,.24]} c='#795137'/><Box p={[-.15,1.56,-1.6]} s={[6.35,.16,.22]} c='#795137'/><Box p={[2.7,2.91,-.05]} s={[.24,.2,3.8]} c='#795137'/>{[-2.35,-1.25,-.15,.95,2.05].map((x,i)=><group key={x} position={[x,2.91-(.55+i*.025)*1.65,-1.6]} scale={.55+i*.025}><Stick a={[0,1.28,0]} b={[0,1.65,0]} r={.022} c={gold}/><Bell/></group>)}{[-2.15,-.8,.7].map((x,i)=><group key={x} position={[x,1.56-(.78+i*.05)*1.6,-1.6]} scale={.78+i*.05}><Stick a={[0,1.28,0]} b={[0,1.6,0]} r={.023} c={gold}/><Bell/></group>)}<group position={[2.7,2.91-.8*1.42,.15]} scale={.8}><Stick a={[0,1.28,0]} b={[0,1.42,0]} r={.022} c={gold}/><Bell/></group><Box p={[-.4,2.13,-.22]} s={[.12,.14,2.75]} c={wood}/><Stick a={[-.4,2.13,1.14]} b={[-.4,1.88,1.14]} r={.027} c={gold}/></group>)}
  {wrap('bell',<group ref={selected} position={[-.4,.73,1.14]} scale={.92}><Bell/><Hit s={[.94,1.35,.72]}/></group>)}
  <group ref={mallet}><Stick a={[0,0,.08]} b={[0,-.22,.7]} r={.026} c='#aa8d58'/><Box s={[.22,.07,.08]} c='#8e7044'/></group>

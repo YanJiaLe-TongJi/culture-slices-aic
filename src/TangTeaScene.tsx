@@ -1,8 +1,8 @@
+import {MiddleGround,TangCompound} from './MiddleArchitecture';
 import {useEffect,useMemo,useRef} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as T from 'three';
 import {Box,Stick,Mat,Basket,Hit} from './DioramaPrimitives';
-import {TeaCourtyard,TeaGround} from './TangArchitecture';
 import type {WeiJinModelProps} from './WeiJinScenes';
 const phase=(v:number,n=0)=>T.MathUtils.clamp(v-n,0,1),silver='#999c91',gold='#b6934c';
 function Metal({map,color=silver}:{map?:T.Texture;color?:string}){return <meshStandardMaterial map={map} color={color} metalness={.57} roughness={.36}/>;}
@@ -31,13 +31,13 @@ function TeaSieve({value}:Pick<WeiJinModelProps,'value'>){const lid=useRef<T.Gro
  <group ref={lid} position={[0,.68,0]}><MetalBox p={[0,0,0]} s={[1.14,.058,.81]}/><mesh position={[0,.034,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[1.07,.73]}/><Metal map={map} color='#f4efd9'/></mesh></group><Hit s={[1.28,.95,1.0]}/>
  </>;}
 function Stove(){const pot=useMemo(()=>[[0,0],[.23,0],[.38,.12],[.42,.32],[.45,.36],[.45,.40],[.415,.40],[.39,.34],[.345,.14],[.22,.04],[0,.04]].map(([r,y])=>new T.Vector2(r,y)),[]);return <><mesh position={[0,.32,0]} castShadow><cylinderGeometry args={[.41,.48,.64,24,1,true]}/><meshStandardMaterial color='#69634f' roughness={.8} side={T.DoubleSide}/></mesh><Box p={[0,.18,.445]} s={[.27,.24,.025]} c='#383a30'/>{[-1,1].map(s=><group key={s}><Stick a={[s*.37,.15,-.21]} b={[s*.42,0,-.24]} r={.055}/><mesh position={[s*.43,.86,0]} rotation={[0,Math.PI/2,0]}><torusGeometry args={[.085,.02,8,32]}/><Metal color='#747563'/></mesh></group>)}<group position={[0,.63,0]}><mesh castShadow><latheGeometry args={[pot,64]}/><Metal color='#757867'/></mesh><mesh position={[0,.31,0]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[.35,48]}/><meshStandardMaterial color='#737c68' roughness={.2}/></mesh></group><Hit s={[1.1,1.2,1.1]}/></>;}
-export default function TangTeaScene({value,wrap}:WeiJinModelProps){
+export default function TangTeaScene({value,wrap,selected}:WeiJinModelProps){
  const particles=useRef<T.InstancedMesh>(null),dummy=useMemo(()=>new T.Object3D(),[]),tray=useRef<T.Group>(null);
  useFrame(()=>{const v=value(),load=phase(v),grind=phase(v,1),sift=phase(v,2);if(tray.current){const q=phase(sift/.35);tray.current.visible=sift>0&&sift<.36;tray.current.position.set(-.8+q*2.1,1.20+Math.sin(q*Math.PI)*.62,1.25);tray.current.rotation.z=q*.26;}
  if(particles.current){for(let i=0;i<96;i++){const seed=(Math.sin(i*39.13)*.5+.5),x=-.8+(seed-.5)*1.35,z=1.25+Math.sin(i*21)*.058;let y=1.15;const q=phase((load-.2-i/96*.23)/.57);dummy.position.set(-2.7*(1-q)+x*q,.9*(1-q)+y*q+Math.sin(q*Math.PI)*.55,1.45*(1-q)+z*q);let size=.034*(1-grind)+.013*grind;
  if(v>=2){const transfer=phase(sift/.35);dummy.position.set(x+(1.3+(seed-.5)*.85-x)*transfer,1.15+.3*transfer+Math.sin(transfer*Math.PI)*.60,z+(Math.cos(i*13)*.26)*transfer);const fall=phase((sift-.38-i/96*.33)/.16);if(i%5===0){if(transfer>=1)dummy.position.y=1.425;size=.022;}else{dummy.position.y-=fall*.35;dummy.position.x+=phase((sift-.84)/.16)*.45*fall;}}
  dummy.scale.set(size,size*.62,size);dummy.rotation.set(i,0,i*.4);dummy.updateMatrix();particles.current.setMatrixAt(i,dummy.matrix);}particles.current.instanceMatrix.needsUpdate=true;}});
- return <><TeaGround/>{wrap('house',<TeaCourtyard/>)}
+ return <><MiddleGround kind="tea"/><TangCompound wrap={wrap} selected={selected}/>
  <group scale={.65} position={[-.35,.063,1]}>
  <group position={[-.6,.18,1.15]}><Mat w={6} d={2.7}/><Box p={[0,.59,0]} s={[5.8,.12,2.35]} c='#74503c'/><Box p={[0,.515,0]} s={[5.62,.10,2.17]} c='#624333'/>{[-2.52,2.52].flatMap(x=>[-.85,.85].map(z=><Box key={`${x}${z}`} p={[x,.25,z]} s={[.13,.5,.13]} c='#674936'/>))}</group>
  {wrap('mill',<group position={[-.8,.84,1.25]}><TeaMill value={value}/></group>)}

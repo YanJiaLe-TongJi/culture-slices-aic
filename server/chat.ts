@@ -1,12 +1,14 @@
 import {getExhibit,exhibitPreset} from '../src/exhibits';
+import {riverEditions,type RiverEdition} from '../src/river-editions';
 import { scene, objects, zones, contextSources, presetResult, type ZoneId, type ObjectId } from '../src/content';
-export interface ChatInput { sceneId: string; zoneId?: string | null; objectId: string | null; actions: string[]; question: string; history: { role: 'user' | 'assistant'; content: string }[] }
+export interface ChatInput { sceneId: string; presentation?:RiverEdition; zoneId?: string | null; objectId: string | null; actions: string[]; question: string; history: { role: 'user' | 'assistant'; content: string }[] }
 export interface AIConfig { url: string; key: string; model: string }
 export class ChatError extends Error { constructor(public status: number, message: string) { super(message); } }
 export function parseInput(data: unknown): ChatInput {
   if (!data || typeof data !== 'object') throw new ChatError(400, '请求格式不正确。');
   const d = data as Record<string,unknown>;
   const exhibit=typeof d.sceneId==='string'?getExhibit(d.sceneId):null;
+  if(d.presentation!==undefined&&(exhibit?.kind!=='bridge'||!['expanded','detailed'].includes(d.presentation as string)))throw new ChatError(400,'场景版本不正确。');
   if (d.sceneId !== scene.id&&!exhibit) throw new ChatError(400, '未找到这个文化切片。');
   if(exhibit){
     if(d.objectId!==null&&!exhibit.objects.some(o=>o.id===d.objectId))throw new ChatError(400,'请先选择有效的器物。');
@@ -20,7 +22,7 @@ export function parseInput(data: unknown): ChatInput {
   }
   if (typeof d.question !== 'string' || !d.question.trim() || d.question.length > 1000) throw new ChatError(400, '问题应为 1 至 1000 个字符。');
   if (!Array.isArray(d.history) || d.history.length > 8 || d.history.some(m=>!m || !['user','assistant'].includes(m.role) || typeof m.content!=='string' || m.content.length>3000)) throw new ChatError(400, '对话记录过长或格式不正确。');
-  return { sceneId:d.sceneId as string, zoneId:(d.zoneId as string|null)??null, objectId:d.objectId as string|null, actions:d.actions as string[], question:d.question.trim(), history:d.history };
+  return { sceneId:d.sceneId as string, ...(d.presentation?{presentation:d.presentation as RiverEdition}:{}),zoneId:(d.zoneId as string|null)??null, objectId:d.objectId as string|null, actions:d.actions as string[], question:d.question.trim(), history:d.history };
 }
 export function buildMessages(input: ChatInput) {
   const exhibit=getExhibit(input.sceneId);
@@ -32,6 +34,7 @@ export function buildMessages(input: ChatInput) {
     `当前对象：${object?`${object.name}；${object.kind}；${object.fact} ${object.detail}`:'未选中'}`,
     `已完成操作：${exhibit.steps.filter(s=>input.actions.includes(s.id)).map(s=>`${s.label}：${s.explanation}`).join('；')||'暂无'}`,
     `演绎边界：${exhibit.interpretation}`,
+    ...(input.presentation?[`当前画面版本：${riverEditions[input.presentation].context}`]:[]),
     ...exhibit.sources.map(s=>`登记来源 ${s.id}，${s.institution}《${s.title}》：${s.facts.join('；')}`)
   ].join('\n')},...input.history,{role:'user',content:input.question}];}
 
@@ -61,7 +64,8 @@ export async function answerChat(input: ChatInput, config: AIConfig, fetcher: ty
   catch { throw new ChatError(503,'问答服务配置暂不可用，请先查看资料。'); }
   let response: Response;
   try {
-    response=await fetcher(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${config.key}`},body:JSON.stringify({model:config.model,messages:buildMessages(input),temperature:.3,max_tokens:700}),signal:AbortSignal.timeout(20000)});
+    const deepseek=url.hostname==='api.deepseek.com';
+    response=await fetcher(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${config.key}`},body:JSON.stringify({model:config.model,messages:buildMessages(input),temperature:.3,max_tokens:900,...(deepseek?{response_format:{type:'json_object'},thinking:{type:'disabled'}}:{})}),signal:AbortSignal.timeout(30000)});
   } catch { throw new ChatError(504,'问答服务连接超时，请稍后重试。'); }
   if(!response.ok) throw new ChatError(502,'问答服务暂时不可用，请稍后重试。');
   try {

@@ -4,7 +4,7 @@ import {Blocks,Box,Stick,type Block} from './DioramaPrimitives';
 import type {Point} from './exhibits';
 const noise=(x:number,z:number)=>{const n=Math.sin(x*127.1+z*311.7)*43758.5453;return n-Math.floor(n);};
 export function RammedWall({p,w,h,t=.3,color='#bb9e77'}:{p:Point;w:number;h:number;t?:number;color?:string}){
- const data=useMemo(()=>{const a:Block[]=[];for(let y=0;y<h;y+=.15)a.push({p:[0,Math.min(y+.075,h-.035),0],s:[w,Math.min(.15,h-y),t],c:new T.Color(color).multiplyScalar(.97+noise(y,w)*.07).getStyle()});return a;},[w,h,t,color]);
+ const data=useMemo(()=>{const a:Block[]=[];for(let y=0;y<h;y+=.15)a.push({p:[0,y+Math.min(.15,h-y)/2,0],s:[w,Math.min(.15,h-y),t],c:new T.Color(color).multiplyScalar(.97+noise(y,w)*.07).getStyle()});return a;},[w,h,t,color]);
  return <group position={p}><Blocks data={data}/></group>;
 }
 export function Gable({w,h,color}:{w:number;h:number;color:string}){
@@ -18,7 +18,8 @@ function TileEnds({w,d,eave}:{w:number;d:number;eave:number}){
 }
 /** Only the low-level roof construction is shared; each building has its own plan. */
 export function Roof({w,d,eave,rise,material='thatch',hip=false}:{w:number;d:number;eave:number;rise:number;material?:'thatch'|'clay'|'reed';hip?:boolean}){
- const data=useMemo(()=>{const a:Block[]=[],sx=material==='clay'?.16:.115,sz=.16;for(let x=-w/2;x<=w/2;x+=sx)for(let z=-d/2;z<=d/2;z+=sz){const slope=Math.max(0,Math.min(1-Math.abs(z)/(d/2),hip?(w/2-Math.abs(x))/(d/2):1));const n=noise(x,z);a.push({p:[x,eave+rise*slope,z],s:[sx*1.08,.105,sz*1.32],c:material==='clay'?['#5b625c','#697069','#74766a'][Math.floor(n*3)]:material==='reed'?['#a88f58','#b39b66','#c1a971'][Math.floor(n*3)]:['#9d814c','#b2965f','#bda36c'][Math.floor(n*3)]});}if(material==='thatch')for(let x=-w/2;x<=w/2;x+=.055)for(const side of [-1,1])a.push({p:[x,eave-.06-noise(x,side)*.045,side*(d/2+.05)],s:[.026,.12+noise(x,5)*.11,.07],c:noise(x,3)>.5?'#c0a266':'#9d7d47'});return a;},[w,d,eave,rise,material,hip]);
+ // Match horizontal cell pitch; close slope gaps with thickness, not coplanar overlap.
+ const data=useMemo(()=>{const a:Block[]=[],sx=material==='clay'?.16:.115,sz=.16;for(let x=-w/2;x<=w/2;x+=sx)for(let z=-d/2;z<=d/2;z+=sz){const slope=Math.max(0,Math.min(1-Math.abs(z)/(d/2),hip?(w/2-Math.abs(x))/(d/2):1));const n=noise(x,z);a.push({p:[x,eave+rise*slope,z],s:[sx,Math.max(.105,rise*sz/(d/2)+.015),sz],c:material==='clay'?['#5b625c','#697069','#74766a'][Math.floor(n*3)]:material==='reed'?['#a88f58','#b39b66','#c1a971'][Math.floor(n*3)]:['#9d814c','#b2965f','#bda36c'][Math.floor(n*3)]});}if(material==='thatch')for(let x=-w/2;x<=w/2;x+=.055)for(const side of [-1,1])a.push({p:[x,eave-.06-noise(x,side)*.045,side*(d/2+.05)],s:[.026,.12+noise(x,5)*.11,.07],c:noise(x,3)>.5?'#c0a266':'#9d7d47'});return a;},[w,d,eave,rise,material,hip]);
  const ridge=hip?Math.max(.4,w-d):w;
  return <><Blocks data={data}/>{material==='clay'&&<TileEnds w={w} d={d} eave={eave}/>}<Box p={[0,eave+rise+.11,0]} s={[ridge+.15,.17,.25]} c={material==='clay'?'#666757':'#7d6846'}/>{[-1,1].map(z=><Stick key={z} a={[-w/2,eave-.09,z*d/2]} b={[w/2,eave-.09,z*d/2]} r={.045} c='#796242'/>)}
  {Array.from({length:Math.floor(w/.52)},(_,i)=>{const x=-w/2+.28+i*.52,peak=eave+rise*(hip?Math.min(1,(w/2-Math.abs(x))/(d/2)):1)-.12;return <group key={i}><Stick a={[x,eave-.1,-d/2]} b={[x,peak,0]} r={.045}/><Stick a={[x,peak,0]} b={[x,eave-.1,d/2]} r={.045}/></group>;})}</>;

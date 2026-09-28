@@ -1,7 +1,10 @@
+import {VillageExpansion} from './EarlySettlements';
+import {earlyLayouts} from './early-layouts';
 import { Component, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type ComponentRef, type RefObject } from 'react';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, OrthographicCamera } from '@react-three/drei';
 import * as THREE from 'three';
+import {recenterOnZoomOut} from './camera-zoom';
 import { objects, zones, type ObjectId, type ZoneId } from './content';
 import { placementPose, type PlacementClock } from './placement';
 import { resolveTarget, targetDefinition, type InteractionId } from './interaction';
@@ -30,13 +33,13 @@ function Terrain(){
   const terrain=useMemo(()=>{
     const b:Voxel[]=[],vertices:number[]=[],colors:number[]=[];
     const color=new THREE.Color();
-    for(let x=-18;x<=18;x++)for(let z=-14;z<=14;z++){
+    for(let x=-27;x<=27;x++)for(let z=-26;z<=20;z++){
       const px=x*.4,pz=z*.4;
       if(!inFootprint(px,pz,villageFootprint))continue;
       const edge=edgeDistance(px,pz,villageFootprint)<.65;
       const grass=edge||pz<-.8&&Math.abs(px)>1.5;
       const n=noise(Math.floor(x/3),Math.floor(z/3));
-      if(edge){b.push({p:[px,-.15,pz],s:[.402,.36,.402],c:n>.5?'#b2976c':'#bba279'});b.push({p:[px,-.52,pz],s:[.402,.38,.402],c:n>.5?'#917958':'#a18760'});}
+      if(edge){b.push({p:[px,-.155,pz],s:[.4,.35,.4],c:n>.5?'#b2976c':'#bba279'});b.push({p:[px,-.52,pz],s:[.4,.38,.4],c:n>.5?'#917958':'#a18760'});}
       color.set(grass?['#92966a','#9ba176','#a4a67a'][Math.floor(n*3)]:['#c5ae83','#c9b38b','#c2aa80'][Math.floor(n*3)]);
       for(const [dx,dz] of [[-.2,-.2],[-.2,.2],[.2,-.2],[.2,-.2],[-.2,.2],[.2,.2]]){vertices.push(px+dx,.03,pz+dz);colors.push(color.r,color.g,color.b);}
       if(edge&&noise(x,z)>.8)b.push({p:[px,.1,pz],s:[.11,.18,.09],c:'#879462'});
@@ -75,13 +78,13 @@ function House({position,scale=1,open=false,onClick}:{position:Vec;scale?:number
       const r=Math.hypot(x*.2,z*.2);
       if(r>1.29||r<1.04)continue;
       if(z>3&&Math.abs(x)<2)continue;
-      for(let y=0;y<7;y++)(z>1?fore:back).push({p:[x*.2,.12+y*.18,z*.2],s:[.205,.18,.205],c:['#b79b75','#bca17c','#b39872'][Math.floor(noise(Math.floor(x/2),Math.floor(y/2))*3)]});
+      for(let y=0;y<7;y++)(z>1?fore:back).push({p:[x*.2,.12+y*.18,z*.2],s:[.2,.18,.2],c:['#b79b75','#bca17c','#b39872'][Math.floor(noise(Math.floor(x/2),Math.floor(y/2))*3)]});
     }
     for(let y=0;y<10;y++){
       const r=1.63-y*.15;
       for(let x=-9;x<=9;x++)for(let z=-9;z<=9;z++){
         const d=Math.hypot(x*.18,z*.18);
-        if(d<r&&d>Math.max(0,r-.26))top.push({p:[x*.18,1.35+y*.13,z*.18],s:[.185,.15,.185],c:['#9b8353','#ae935c','#b99d64'][Math.floor(noise(Math.floor(x/3),Math.floor(z/3)+y*.1)*3)]});
+        if(d<r&&d>Math.max(0,r-.26))top.push({p:[x*.18,1.35+y*.13,z*.18],s:[.18,.15,.18],c:['#9b8353','#ae935c','#b99d64'][Math.floor(noise(Math.floor(x/3),Math.floor(z/3)+y*.1)*3)]});
       }
     }
     top.push({p:[0,2.65,0],s:[.22,.2,.22],c:'#957b49'});
@@ -199,16 +202,19 @@ function Rig({selected,zone,reset,locked,entered,onStart,onEnd}:RigProps&{onStar
   const snapshots=useRef(new Map<string,{position:THREE.Vector3;target:THREE.Vector3;zoom:number}>());
   const previous=useRef<string|null>(null),lastReset=useRef(reset),zoomGoal=useRef(42);
   const moving=useRef(true),goal=useRef(new THREE.Vector3()),camGoal=useRef(new THREE.Vector3());
-  const zoom=selected?Math.min(165,size.width/5.4,size.height/4.4):zone?Math.min(125,size.width/6.9,size.height/5.8):Math.min(55,size.width/18.5,size.height/15.5);
+  const spatial=selected==='houses'||selected==='harvest'||zone==='settlement';
+  const overviewZoom=Math.min(55,size.width/(18.5*earlyLayouts.village.scale),size.height/(15.5*earlyLayouts.village.scale));
+  const zoom=spatial?Math.min(95,size.width/10.5,size.height/8.5):selected?Math.min(165,size.width/5.4,size.height/4.4):zone?Math.min(125,size.width/6.9,size.height/5.8):overviewZoom;
+  const previousZoom=useRef(camera.zoom);
   useEffect(()=>{
     const key=selected?`object:${selected}`:zone?`zone:${zone}`:'village';
     if(lastReset.current!==reset){snapshots.current.clear();lastReset.current=reset;previous.current=null;}
     if(previous.current&&previous.current!==key&&!moving.current&&controls.current)snapshots.current.set(previous.current,{position:camera.position.clone(),target:controls.current.target.clone(),zoom:camera.zoom});
     previous.current=key;
     const saved=snapshots.current.get(key);
-    if(saved){goal.current.copy(saved.target);camGoal.current.copy(saved.position);zoomGoal.current=THREE.MathUtils.clamp(saved.zoom,zoom*.65,zoom*1.65);moving.current=true;return;}
+    if(saved){goal.current.copy(saved.target);camGoal.current.copy(saved.position);zoomGoal.current=THREE.MathUtils.clamp(saved.zoom,overviewZoom*.65,zoom*1.65);moving.current=true;return;}
     zoomGoal.current=zoom;
-    const p=objects.find(o=>o.id===selected)?.position||zones.find(z=>z.id===zone)?.position||[0,.2,0];
+    const p=objects.find(o=>o.id===selected)?.position||zones.find(z=>z.id===zone)?.position||earlyLayouts.village.center;
     goal.current.set(p[0],p[1],p[2]);
     if(selected==='jar')goal.current.y=.5;
     camGoal.current.copy(goal.current).add(new THREE.Vector3(8,10,13));moving.current=true;
@@ -219,7 +225,7 @@ function Rig({selected,zone,reset,locked,entered,onStart,onEnd}:RigProps&{onStar
     camera.position.lerp(camGoal.current,alpha);controls.current.target.lerp(goal.current,alpha);camera.zoom=THREE.MathUtils.lerp(camera.zoom,zoomGoal.current,alpha);camera.updateProjectionMatrix();controls.current.update();
     if(camera.position.distanceTo(camGoal.current)<.003&&Math.abs(camera.zoom-zoomGoal.current)<.01)moving.current=false;
   });
-  return <OrbitControls ref={controls} enabled={entered&&!locked} onStart={()=>{moving.current=false;onStart();}} onEnd={onEnd} enablePan={false} minZoom={Math.max(12,zoom*.65)} maxZoom={zoom*1.65} minPolarAngle={.4} maxPolarAngle={1.16} minAzimuthAngle={-.65} maxAzimuthAngle={1.2}/>;
+  return <OrbitControls ref={controls} enabled={entered&&!locked} onStart={()=>{previousZoom.current=camera.zoom;moving.current=false;onStart();}} onEnd={onEnd} onChange={()=>{if(controls.current&&!moving.current&&entered&&!locked)recenterOnZoomOut(camera,controls.current.target,earlyLayouts.village.center,previousZoom.current,overviewZoom);previousZoom.current=camera.zoom;}} enablePan={false} minZoom={overviewZoom*.65} maxZoom={zoom*1.65} minPolarAngle={.4} maxPolarAngle={1.16} minAzimuthAngle={-.65} maxAzimuthAngle={1.2}/>;
 }
 class RenderBoundary extends Component<{children:ReactNode;fallback:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true};}render(){return this.state.failed?this.props.fallback:this.props.children;}}
 function HitBox({position=[0,0,0],size}:{position?:Vec;size:Vec}){
@@ -289,9 +295,9 @@ export default function Scene(props:Props){
   return <RenderBoundary fallback={fallback}><div className="scene-renderer" data-highlight-target={active||selected||''} data-hover-target={shown||''} onPointerLeave={()=>setHover(null)}><Canvas shadows dpr={quality} fallback={fallback} style={{cursor:active?'pointer':locked?'default':dragging?'grabbing':'grab'}} gl={{antialias:true,alpha:true}} onPointerMissed={()=>setHover(null)}>
     <OrthographicCamera makeDefault position={[8,10,13]} zoom={42} near={.1} far={100}/>
     <ambientLight intensity={1.2}/><hemisphereLight args={['#fcf3db','#788663',1.15]}/>
-    <directionalLight position={[-5,12,7]} intensity={2.5} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-10} shadow-camera-right={10} shadow-camera-top={9} shadow-camera-bottom={-9} shadow-normalBias={.035}/>
+    <directionalLight position={[-5,12,7]} intensity={2.5} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-17} shadow-camera-right={17} shadow-camera-top={17} shadow-camera-bottom={-17} shadow-normalBias={.035}/>
     <Suspense fallback={null}>
-      <Terrain/><Plants/>
+      <Terrain/><Plants/><VillageExpansion selected={selected==='houses'||zone==='settlement'?'houses':null} wrap={(id,children)=>target(id as InteractionId,children)}/>
       <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.82,0]} receiveShadow><planeGeometry args={[200,200]}/><shadowMaterial transparent opacity={.14}/></mesh>
       {target('dwelling',<><House position={[-3.45,0,-2.5]} scale={.85}/><House position={[0,0,-2.5]} open={zone==='dwelling'}/><House position={[3.35,0,-2.15]} scale={.82}/></>)}
       {target('slab',<group position={[-1.5,0,2.7]}><Slab/></group>)}

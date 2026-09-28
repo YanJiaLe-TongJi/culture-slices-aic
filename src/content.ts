@@ -1,5 +1,5 @@
-export type ObjectId = 'slab' | 'roller' | 'grain' | 'ding' | 'jar' | 'clay' | 'shovel' | 'sickle';
-export type ZoneId = 'grinding' | 'cooking' | 'pottery' | 'dwelling' | 'field-edge';
+export type ObjectId = 'slab' | 'roller' | 'grain' | 'ding' | 'jar' | 'clay' | 'shovel' | 'sickle' | 'houses' | 'harvest';
+export type ZoneId = 'grinding' | 'cooking' | 'pottery' | 'dwelling' | 'field-edge' | 'settlement';
 export interface ZoneDefinition { id: ZoneId; name: string; english: string; question: string; description: string; position: [number,number,number]; sourceIds: string[] }
 export type ActionId = 'placed' | 'ground';
 export interface SourceEntry { id: string; institution: string; title: string; url: string; facts: string[] }
@@ -22,6 +22,10 @@ objects.push(
   { id:'shovel', zoneId:'field-edge', name:'石铲', english:'STONE SPADE', kind:'文物线索 · 新郑裴李岗出土', description:'从一片土地，到可以播种的地方。', fact:'国博介绍这类石铲用于垦荒、翻地。', detail:'参考 1978 年新郑裴李岗出土的国博藏品，长 30.3 厘米、宽 10 厘米。当前仅用简化裸石器表达形制，不把尚未核对的装柄方式当作事实。周围植被属于教学示意。', sourceIds:['nmc-spade'], position:[4.5,.45,1.4] },
   { id:'sickle', zoneId:'field-edge', name:'锯齿石镰', english:'SERRATED STONE SICKLE', kind:'同文化参照 · 郏县水泉出土', description:'细小的齿，也能成为收获的工具。', fact:'弧形石镰的刃部带有细齿，尾端有利于绑缚。', detail:'参考国博藏品，1989 年河南郏县水泉出土，长 20.6 厘米、宽 6 厘米。馆方将其作为裴李岗文化典型器形介绍。它并非新郑裴李岗出土，不能仅凭器形确定曾收割哪种作物。', sourceIds:['nmc-sickle'], position:[5.2,.4,2.5] }
 );
+objects.push(
+  {id:'houses',zoneId:'settlement',name:'后部居住群',english:'LIVING TOGETHER',kind:'聚落空间 · 教学演绎',description:'土路连接屋前与相邻的住居。',fact:'裴李岗遗址发现多组由房址、灰坑与陶窑等组成的生产生活单元。',detail:'木骨泥墙有考古线索；房屋数量、圆形草顶、屋内陈设及土路布局属于教学推定。默认屋顶与墙体完整；点选居住群展开内部，返回全景合拢。这里把屋前磨粮放进更完整的生活环境，不是遗址的实测平面。',sourceIds:['peiligang-settlement'],position:[-4.3,.75,-6.4]},
+  {id:'harvest',zoneId:'field-edge',name:'田边与收集区',english:'BEYOND THE HOUSES',kind:'聚落空间 · 教学演绎',description:'沿着小路，从聚居空地走到土地边。',fact:'裴李岗植物遗存包括黍、稻、粟与野生果实。',detail:'田块、植株和收集物的排列用于连接土地与食物加工。资料不能支持这些植物在这几栋房屋旁按此方式种植，也不支持模型表现的产量和规模。',sourceIds:['peiligang-settlement','nmc-spade'],position:[7.75,.5,1.2]}
+);
 export const sources: SourceEntry[] = [source,
   {id:'henan-ding',institution:'河南博物院',title:'乳钉纹红陶鼎',url:'https://www.chnmus.net/sitesources/hnsbwy/page_pc/dzjp/mzyp/rdwhtd/list1.html',facts:['1977 年新郑裴李岗出土，高 22 厘米、口径 23 厘米。','红陶炊煮器，有三足和乳钉纹；内壁留有泥条盘筑痕迹。','乳钉的具体功能尚不明确。']},
   {id:'wenwu-jar',institution:'文物出版社',title:'裴李岗文化的红陶小口双耳壶',url:'https://wenwu.wbsjk.com/newsinfo/1327877.html?templateId=508839',facts:['河南博物院藏，1980 年长葛石固出土。','高 19.5 厘米、口径 5.4 厘米；高领、卵形腹、双耳有系孔、素面。','此处资料不能确定这件壶的原始内容物。']},
@@ -30,6 +34,7 @@ export const sources: SourceEntry[] = [source,
   {id:'peiligang-settlement',institution:'河南省文物考古研究院',title:'裴李岗遗址新发现与新研究 · 2026 讲坛实录',url:'https://www.hnswwkgyjy.cn/NewsView.php?News_ID=2920',facts:['生活区存在多组包含房址、灰坑、陶窑的生产生活单元，并发现木骨泥墙建筑线索。','植物遗存包括黍、稻、粟与野生果实。','本场景的房屋数量、屋顶、路径、器物摆放为艺术组合，非遗址平面复原。']}
 ];
 export const zones: ZoneDefinition[] = [
+  {id:'settlement',name:'聚落后巷',english:'AMONG THE HOUSES',question:'房屋与作业空地怎样彼此相连？',description:'沿土路观察草泥住居、器用与相邻空地。布局与屋面是教学演绎。',position:[-4.3,.5,-6.4],sourceIds:['peiligang-settlement']},
   {id:'grinding',name:'屋前磨粮',english:'THE GRINDING CORNER',question:'两块石头，怎样配合工作？',description:'把谷物放上磨盘，在来回之间发现工具的关系。',position:[-1.2,0,2.7],sourceIds:[source.id]},
   {id:'cooking',name:'灶边炊煮',english:'AROUND THE FIRE',question:'陶鼎的三只足，为什么留出空隙？',description:'从低处观察火与容器，看看食物加工后的另一种可能。',position:[1.8,0,2.6],sourceIds:['henan-ding']},
   {id:'pottery',name:'制陶角',english:'SHAPING THE EARTH',question:'一团泥，怎样变成容器？',description:'泥条逐层盘起，陶器的形状在手艺中出现。',position:[-4,0,.5],sourceIds:['henan-ding','peiligang-settlement']},
@@ -52,6 +57,7 @@ export function presetAnswer(question: string, objectId: ObjectId | null): strin
 export function questionsFor(id:ObjectId|null,zoneId?:ZoneId|null):string[]{
   if(!id&&zoneId&&zoneId!=='grinding')id=objects.find(o=>o.zoneId===zoneId)?.id||null;
   if(!id || objects.find(o=>o.id===id)?.zoneId==='grinding')return questions;
+  if(id==='houses'||id==='harvest')return ['这是什么？'];
   return id==='ding'?['陶鼎为什么有三只足？','乳钉有什么作用？']:id==='jar'?['这件壶有什么特点？','这件壶原来装什么？']:id==='clay'?['陶器怎样成形？','这里的陶窑是精确复原吗？']:id==='shovel'?['石铲有什么用途？','这件石铲在哪里出土？']:['石镰为什么有细齿？','这件石镰在哪里出土？'];
 }
 export function contextSources(objectId:ObjectId|null,zoneId?:ZoneId|null):SourceEntry[]{

@@ -45,7 +45,7 @@ tangExhibits.push({
 
 const sutra:SourceEntry={id:'bl-diamond-sutra',institution:'英国图书馆 · 国际敦煌项目',title:'藏经洞藏品：868年《金刚经》印本',url:'https://idp.bl.uk/discover/learning/dunhuang/collection-items/cave-17-the-library-cave/',facts:['此卷有868年纪年，是现存最早有确切纪年的完整印刷书卷。','七张染黄纸印刷后接成约五米长卷，含精细扉画。','敦煌藏经洞是其发现地，不能因此断言印刷地点；纪年不等于雕版术的发明年份。']};
 const printing:SourceEntry={id:'unesco-block-print',institution:'联合国教科文组织',title:'中国雕版印刷技艺',url:'https://ich.unesco.org/en/RL/china-engraved-block-printing-technique-00229',facts:['传统雕版把图文刻在木版上，凸起的部分承墨并将图文转到纸上。','制版和印刷包含多项手工协作；保留下来的传统技艺只能作为原理对照，不能直接证明全部唐代工具细节。']};
-const street:SourceEntry={id:'chengdu-street-phases',institution:'中国社会科学网 · 考古研究',title:'从成都江南馆街遗址看唐宋城市发展',url:'https://www.cssn.cn/kgxc/kgxc_kgsb/202207/t20220728_5431241.shtml',facts:['成都江南馆街遗址包含唐宋时期的道路、房屋及排水设施。','临街房屋为理解城市经营与生活空间提供线索，各时期遗存应分别辨认；不能把南宋砖铺大街整体倒放到晚唐。']};
+const street:SourceEntry={id:'chengdu-street-phases',institution:'中国社会科学网 · 考古研究',title:'古城的消失与重构 · 成都江南馆街遗址分期',url:'https://www.cssn.cn/kgxc/kgxc_kgsb/202207/t20220728_5431241.shtml',facts:['成都江南馆街遗址包含唐宋时期的道路、房屋及排水设施。','临街房屋为理解城市经营与生活空间提供线索，各时期遗存应分别辨认；不能把南宋砖铺大街整体倒放到晚唐。']};
 tangExhibits.push({
  id:'sui-tang-culture',eraId:'sui-tang',kind:'printing',title:'木版上的文字',subtitle:'晚唐印刷铺作',culture:'晚唐印本 · 成都印业情境',question:'一块木版，怎样留下许多相同的字？',description:'走入临街铺作，为凸起的版面刷墨、覆纸擦印，再翻开纸张，对照反字与正字。',accent:'#826c58',ground:'#b9ac90',
  interpretation:'以868年《金刚经》印本引入早期雕版，另借成都街坊遗址和晚唐印业背景组织场景，不宣称此卷原印于这间铺子。房屋立面、屋面、案具、存板架和工具为推定；未采用南宋砖铺主街。板面“一版一印、以墨传文”为当代自制教学字样，字体并非古字摹刻；没有将馆藏扫描图作为产品贴图。传统雕版原理用于解释，动作省略操作者，不能据动画计算印刷速度。',sources:[printing,sutra,street],objects:[

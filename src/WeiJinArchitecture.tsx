@@ -16,7 +16,7 @@ export function WeiJinGround({plan}:{plan:keyof typeof outlines}){
   if(plan==='kiln'&&x>.15&&x<2.35&&z<3.7&&z>-5.15)top-=.28;
   if(plan==='court'&&z>3.43&&z<4.17)top=-.3;
   const c=plan==='cave'?n>.5?'#baad92':'#c4b69b':plan==='kiln'?n>.5?'#ada181':'#b9a687':n>.4?'#bcb493':'#b3ad91';
-  a.push({p:[x,top-.10,z],s:[.285,.20,.285],c});a.push({p:[x,(top-.76)/2,z],s:[.285,top+.56,.285],c:plan==='cave'?'#9b8972':n>.55?'#968365':'#a08b6e'});
+  a.push({p:[x,top-.10,z],s:[.28,.20,.28],c});a.push({p:[x,(top-.76)/2,z],s:[.28,top+.56,.28],c:plan==='cave'?'#9b8972':n>.55?'#968365':'#a08b6e'});
  }return a;},[plan]);return <><Blocks data={data}/><mesh rotation={[-Math.PI/2,0,0]} position={[0,-.77,0]} receiveShadow><planeGeometry args={[200,200]}/><shadowMaterial opacity={.16}/></mesh></>;
 }
 export function Brickwork({p=[0,0,0],w,h,d=.28,color='#898b7b'}:{p?:Point;w:number;h:number;d?:number;color?:string}){

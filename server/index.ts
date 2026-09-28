@@ -3,11 +3,12 @@ import { existsSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { answerChat, ChatError, parseInput } from './chat';
+import {resolveAIConfig,publicAIStatus} from './config';
 // Small local .env loader: never expose environment values to the browser.
 if(existsSync('.env'))for(const line of readFileSync('.env','utf8').split(/\r?\n/)){
   const match=line.match(/^([A-Z_]+)\s*=\s*(.*)$/);if(match&&!process.env[match[1]])process.env[match[1]]=match[2].replace(/^['"]|['"]$/g,'');
 }
-const config={url:process.env.AI_API_URL||'',key:process.env.AI_API_KEY||'',model:process.env.AI_MODEL||''};
+const config=resolveAIConfig(process.env);
 const production=process.argv.includes('--production');
 const vite=production?null:await (await import('vite')).createServer({server:{middlewareMode:true},appType:'spa'});
 const json=(res:ServerResponse,status:number,value:unknown)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value));};
@@ -15,7 +16,7 @@ async function body(req:IncomingMessage){let size=0;const chunks:Buffer[]=[];for
 const server=createServer(async(req,res)=>{
   try{
     const pathname=new URL(req.url||'/','http://localhost').pathname;
-    if(pathname==='/api/status'&&req.method==='GET')return json(res,200,{configured:!!(config.url&&config.key&&config.model)});
+    if(pathname==='/api/status'&&req.method==='GET')return json(res,200,publicAIStatus(config));
     if(pathname==='/api/chat'){
       if(req.method!=='POST')return json(res,405,{error:'请使用POST请求。'});
       const origin=req.headers.origin;

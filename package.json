@@ -1,6 +1,6 @@
 {
   "name": "culture-slices-aic",
-  "version": "0.4.10",
+  "version": "0.10.1",
   "private": true,
   "type": "module",
   "scripts": {

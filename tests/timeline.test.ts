@@ -5,10 +5,10 @@ import {parseRoute} from '../src/routes';
 import {resolveTarget} from '../src/interaction';
 import {createPlacementClock} from '../src/placement';
 
-test('eight eras expose three slots each, all eight eras are fully playable',()=>{
-  assert.equal(eras.length,8);assert.equal(scenes.length,24);
+test('nine eras expose three slots each, all nine eras are fully playable',()=>{
+  assert.equal(eras.length,9);assert.equal(scenes.length,27);
   for(const era of eras){assert.equal(era.sceneIds.length,3);for(const id of era.sceneIds)assert.equal(scenes.find(s=>s.id===id)?.eraId,era.id);}
-  assert.equal(scenes.filter(s=>s.status==='ready').length,24);
+  assert.equal(scenes.filter(s=>s.status==='ready').length,27);
   for(const era of eras)assert.equal(scenes.filter(s=>s.eraId===era.id&&s.status==='ready').length,3);
 });
 test('hash routes resolve direct entries and reject planned or unknown scenes',()=>{

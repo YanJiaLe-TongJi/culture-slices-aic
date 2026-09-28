@@ -1,3 +1,4 @@
+import {positionEarlyCamera} from './early-camera.mjs';
 import {createRequire} from 'node:module';
 import {writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -8,7 +9,7 @@ const browser=await chromium.launch({channel:'msedge',headless:true}),errors=[],
 try{for(const s of exhibits.filter(s=>s.eraId==='qin-han'&&(!process.env.SCENE_ID||s.id===process.env.SCENE_ID))){
  const p=await browser.newPage({viewport:{width:1440,height:1000}});p.on('pageerror',e=>errors.push(e.message));
  await p.goto(`${base}/#/scene/${s.id}`,{waitUntil:'networkidle'});await p.getByRole('button',{name:'开始探索',exact:true}).click();await p.mouse.move(10,10);await p.waitForTimeout(1600);assert.equal(await p.getByRole('tooltip').count(),0);
- const r=await p.locator('canvas').boundingBox(),cam=new T.OrthographicCamera(-r.width/2,r.width/2,r.height/2,-r.height/2,.1,80);cam.position.set(8,9.65,12);cam.lookAt(0,.65,0);cam.zoom=Math.min(62,r.width/18.5,r.height/14.5);cam.updateProjectionMatrix();cam.updateMatrixWorld();const v=new T.Vector3(...s.objects[0].position).project(cam);
+ const r=await p.locator('canvas').boundingBox(),cam=new T.OrthographicCamera(-r.width/2,r.width/2,r.height/2,-r.height/2,.1,80);positionEarlyCamera(cam,r,s.kind);const v=new T.Vector3(...s.objects[0].position).project(cam);
  await p.mouse.move(r.x+(v.x+1)*r.width/2,r.y+(1-v.y)*r.height/2);await p.getByRole('tooltip',{name:s.objects[0].name,exact:true}).waitFor();await p.mouse.click(r.x+(v.x+1)*r.width/2,r.y+(1-v.y)*r.height/2);await p.getByRole('heading',{name:s.objects[0].name,exact:true}).waitFor();await p.mouse.move(10,10);
  for(const [i,step] of s.steps.entries()){
   if(s.kind==='slips'&&i===1){await p.getByRole('button',{name:'45',exact:true}).click();assert.equal(await p.getByRole('button',{name:step.label,exact:true}).isEnabled(),false);await p.getByRole('button',{name:'54',exact:true}).click();}

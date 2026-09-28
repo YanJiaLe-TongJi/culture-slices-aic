@@ -27,13 +27,13 @@ export const songExhibits:Exhibit[]=[{
  {question:'唐宋都这样喝茶吗？',answer:'不能把一个场景推广到所有人。这里用宋代器物和点茶说明讲一种方法；唐代切片主要表现碾、筛备茶及煎茶线索，时代内部也存在多种饮茶习惯。',sourceIds:[tea.id]}
  ]
 },{
- id:'song-yuan-making',eraId:'song-yuan',kind:'bridge',title:'桥上桥下',subtitle:'虹桥与汴河船运',culture:'北宋 · 张择端画卷线索',question:'桥上要通行，桥下的大船又怎样通过？',description:'沿双岸走近无廊屋的木拱桥，移开一段桥面看支承，再倒下船桅，驶过桥孔。',accent:'#9b7751',ground:'#b8ac90',
- interpretation:'木桥、漕船和岸边敞棚参照故宫藏北宋张择端《清明上河图》的虹桥局部，重新组织为双岸剖面。未照搬后世石拱桥或闽浙廊桥。桥梁节点、绳索、船舱、尺寸和运行路径均简化；移开桥面是教学剖视，不是历史开桥方法。模型不计算承重或水动力，船移动省略操作者，不能说它自行航行。',sources:[qingming,structure],objects:[
+ id:'song-yuan-making',eraId:'song-yuan',kind:'bridge',title:'桥上桥下',subtitle:'虹桥与汴河船运',culture:'北宋 · 张择端画卷线索',question:'桥上要通行，桥下的大船又怎样通过？',description:'比较扩大河市与紧凑精细两版：走近木拱桥，观察两岸铺屋和装卸踏道，再倒下船桅，驶过桥孔。',accent:'#9b7751',ground:'#b8ac90',
+ interpretation:'木桥、漕船和岸边敞棚参照故宫藏北宋张择端《清明上河图》的虹桥局部，重新组织为双岸河市。扩大版延长河段并增设街铺、泊船、装卸区；精细版保留紧凑地块，细化筒瓦、檐椽、格栅、绳结与船板。两层楼铺、人物服装和店招为艺术推定，不声称均位于原卷虹桥桥头。未照搬后世石拱桥或闽浙廊桥。桥梁节点、绳索受力、船舱、尺寸和运行路径均简化；移开桥面是教学剖视，不是历史开桥方法。模型不计算承重或水动力，人物是尺度示意，动画没有复原实际操船人力与绳索受力，不能说船自行航行。',sources:[qingming,structure],objects:[
  {id:'bridge',name:'贯木拱与桥面',kind:'画面结构示意',fact:'成排木构从两岸向上搭接，桥孔给水上交通留出空间。',detail:'当前用两组交错支承木和横梁表达结构关系，不是原桥的完整榫卯施工模型。操作时暂移桥面以看清木拱，完成后桥面归位。',position:[0,2.25,0],sourceIds:[qingming.id,structure.id]},
- {id:'mast',name:'可放倒的船桅',kind:'画面动作线索',fact:'画中桥下船只正在放倒桅杆，准备通过桥孔。',detail:'桅杆以底部连接点缓慢转下，帆已收拢。动作压缩并省略水手与绳索受力；船体、桅杆高度是情境比例，不能推导真实净空。',position:[.3,1.2,3.3],sourceIds:[qingming.id]},
+ {id:'mast',name:'可放倒的船桅',kind:'画面动作线索',fact:'画中桥下船只正在放倒桅杆，准备通过桥孔。',detail:'桅杆以底部连接点缓慢转下，帆已收拢。动作压缩，未完整表现水手协作与绳索受力；船体、桅杆高度是情境比例，不能推导真实净空。',position:[.3,1.2,3.3],sourceIds:[qingming.id]},
  {id:'boat',name:'河道里的运输船',kind:'自制情境模型',fact:'汴河船运与岸上的商贸在画面里紧密相连。',detail:'船舱、舷板、货包、木舵和篷顶帮助辨识货运情境，未复原某一艘宋船的船体线型。动画在倒桅后才允许通过。',position:[.25,.45,3.15],sourceIds:[qingming.id]},
  {id:'landing',name:'泊岸踏道',kind:'空间演绎',fact:'岸边需要为船只、货物和行人安排交接空间。',detail:'石砌踏道与木桩重新组织出一处停靠角落；位置与级数不对应画中实测尺寸，也不声称是已经发掘的宋代码头。',position:[3.6,.55,2.9],sourceIds:[qingming.id]},
- {id:'market',name:'桥头敞棚与街铺',kind:'建筑画面线索',fact:'桥头铺棚使过桥、沿岸与交易活动彼此交汇。',detail:'根据北宋原卷的敞棚、瓦屋和简洁木栏组织双岸，不在桥上加高大廊屋。人物被省略，不能从空场景判断当时人流量。',position:[-4.6,1.7,-2.5],sourceIds:[qingming.id]}
+ {id:'market',name:'桥头敞棚与街铺',kind:'建筑画面线索',fact:'桥头铺棚使过桥、沿岸与交易活动彼此交汇。',detail:'以北宋原卷的敞棚、瓦屋、木栏与商贸活动组织双岸。开放柜台、深出檐、铺前遮阳棚与楼层格栅强化河市特征。新增楼铺的位置、层数、店招和行人是艺术组合；不能据此推算历史人流或当年的准确店铺布局。',position:[-4.8,2.55,-2.5],sourceIds:[qingming.id]}
  ],steps:[
  {id:'structure',label:'移开桥面，看交错木拱',objectId:'bridge',duration:5.6,explanation:'教学剖视展示桥面下面的木构，随后复位；历史上并不是这样移动桥面通船。'},
  {id:'mast',label:'收帆倒桅，留出净空',objectId:'mast',duration:4.5,explanation:'船桅已放倒。此动作有画面线索，节点与绳索受力未完整复原。'},

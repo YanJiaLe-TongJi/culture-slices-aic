@@ -1,10 +1,14 @@
+import {newEraExhibits} from './exhibits-new-era';
+import {expandLateContent} from './late-expansion-content';
+import {expandMiddleContent} from './middle-expansion-content';
+import {expandEarlyContent} from './early-expansion-content';
 import type {SourceEntry} from './content';
 import {weiJinExhibits} from './exhibits-wei-jin';
 import {tangExhibits} from './exhibits-tang';
 import {songExhibits} from './exhibits-song';
 import {mingQingExhibits} from './exhibits-ming-qing';
 import {modernExhibits} from './exhibits-modern';
-export type ExhibitKind='pottery'|'flute'|'feast'|'casting'|'bells'|'lamp'|'loom'|'slips'|'ewer'|'kiln'|'grotto'|'tea'|'plough'|'printing'|'diancha'|'bridge'|'landscape'|'study'|'porcelain'|'newyear'|'sewing'|'carding'|'cinema';
+export type ExhibitKind='pottery'|'flute'|'feast'|'casting'|'bells'|'lamp'|'loom'|'slips'|'ewer'|'kiln'|'grotto'|'tea'|'plough'|'printing'|'diancha'|'bridge'|'landscape'|'study'|'porcelain'|'newyear'|'sewing'|'carding'|'cinema'|'highspeed'|'tiangong'|'digitalheritage';
 export type Point=[number,number,number];
 export interface ExhibitObject{id:string;name:string;kind:string;fact:string;detail:string;position:Point;sourceIds:string[]}
 export interface ExhibitStep{id:string;label:string;objectId:string;duration:number;explanation:string}
@@ -33,7 +37,7 @@ export const exhibits:Exhibit[]=[
  object('pigment','黑彩与纹样','图案示意','人面、鱼纹和对称关系是这件陶盆的观察线索。','两种图案按钮只用于比较人面鱼纹和网状线条；不复原颜料配方、古代画笔或完整原纹。',[2.25,.45,1.5],[pottery.id]),
  object('coils','泥条陶坯','制作示意','形状和装饰可以分开观察。','旁边的泥条用于解释容器如何逐层成形，不声称这件馆藏盆的每一道工序已经被复原。',[-3.45,.3,.65],[pottery.id]),
  object('drying','晾坯与成品架','场景布置','对照素坯、黑彩与器形，分辨观察的层次。','架子、遮棚和器物摆放为教学设计，不是该盆出土现场的陈设复原；不由排列推断具体烧成顺序或时间。',[3.45,1,-2.05],[pottery.id]),
- object('shelter','制陶工棚','场景布置','从院落回到器物，注意环境与文物证据的区别。','墙体、屋顶、编织器与储藏罐仅用于组织场景空间。馆方资料支持的是彩陶盆及相关文化信息，没有提供这座工棚的复原依据。',[-3.15,1,-2.5],[pottery.id])],steps:[
+ object('shelter','制陶工棚','场景布置','从院落回到器物，注意环境与文物证据的区别。','屋面与围墙默认完整，点选后展开内部，返回全景合拢；这是现代观察方式。墙体、屋顶、编织器与储藏罐仅用于组织场景空间。馆方资料支持的是彩陶盆及相关文化信息，没有提供这座工棚的复原依据。',[-3.15,1,-2.5],[pottery.id])],steps:[
  step('shape','逐层盘起器形','basin',3.6,'已观察器形逐层出现。这里只示意成形关系，干燥与烧成没有被模拟。'),step('paint','展开黑彩纹样','basin',4,'已对照陶胎与黑彩。模型的鱼纹是简化设计，寓意仍需保留多种解释。'),step('compare','转盆，观察内壁','basin',2.8,'已观察内壁纹样。器形、装饰与考古用途，是不同层次的证据。')],qa:[
  {question:'这只盆是吃饭用的吗？',answer:'不能这样断定。国博说明类似人面鱼纹彩陶盆多用于儿童瓮棺的棺盖。这里的工坊是教学性组合，不能把模型摆在台上就解释为餐具。',sourceIds:[pottery.id]},
  {question:'鱼纹是什么意思？',answer:'这类图案的含义有不同解释。资料描述人面与鱼的组合，也讨论信仰等可能联系；本场景只帮助观察图案，不将某一种寓意当作定论。',sourceIds:[pottery.id]}]},
@@ -43,9 +47,9 @@ export const exhibits:Exhibit[]=[
  object('holes','音孔对照','乐理示意','孔的位置与发音能力之间有联系。','听到的高低两音只让变化可感知。没有在这里复原具体标本的音阶与古代乐曲。',[-.45,.23,2.65],[flute.id]),
  object('shelter','棚下听音席','场景布置','有遮阴的空间帮助集中观察与比较声音。','棚架、席子与储藏器物是艺术布置；资料并未说明这支骨笛在这样的棚下演奏，不据场景推断仪式或使用者身份。',[-1.55,1,-2.65],[flute.id]),
  object('shore','芦苇水岸','场景布置','从水岸环境回到材料与声音的问题。','水面、植物、篮筐与临水木条用于组织微缩场景，不能当作贾湖遗址某处岸线的考古复原。',[3.05,.25,.15],[flute.id])],steps:[step('low','试听第一种孔位示意','flute',2,'已试听较低的合成音；不是出土骨笛的录音。'),step('high','改变孔位，试听另一音','flute',2,'已试听另一种音高。按孔动画不是可用于复奏的历史指法。'),step('listen','比较两种声音','holes',2.8,'已比较两个示意音。资料能支持骨笛的演奏能力，不能告诉我们史前的人演奏了哪首曲子。')],qa:[{question:'这是原来的声音吗？',answer:'不是。当前声音由浏览器合成，按孔方式也只是示意。馆方对实物的测音研究说明它能演奏旋律，但这里不能据此还原史前曲调。',sourceIds:[flute.id]},{question:'为什么选择骨头？',answer:'这件骨笛用鹤类禽鸟中空尺骨加工，去掉关节并钻孔。资料支持材料与结构描述，但不足以确定当时制作者选择它的全部理由。',sourceIds:[flute.id]}]},
- {id:'pre-qin-living',eraId:'pre-qin',kind:'feast',title:'一席之间',subtitle:'鼎簋与食器',culture:'西周早期 · 利簋与周原院落线索',question:'盛放食物的器物，也能讲述礼仪吗？',description:'从鼎与簋的分工，走近食物、器用与身份。',accent:'#57766d',ground:'#b6aa8b',interpretation:'簋参考利簋、鼎为器类示意；建筑另以周原院落组织为参考，屋顶与柱梁细部为艺术推定。不是同址出土组合、利簋使用地或普通家庭的复原；前墙与右厢为观察器物而剖开。',sources:[gui,food,zhouArchitecture],objects:[object('gui','方座双耳簋','利簋形制线索','圆腹、双耳与方座构成利簋的轮廓。','簋用于盛熟饭食，也进入宴享与祭祀情境。模型保留方座、兽首双耳与纹饰分区，细部为艺术化简化。',[-.85,.82,1.1],[gui.id]),object('tripod','三足鼎','器类示意','鼎与蒸煮食物的技术和饮食礼仪相关。','此鼎不对应某一件馆藏标本；与利簋组合用于比较用途，不用器物数量推定人物等级。',[1.8,.7,1],[food.id]),object('inscription','器内铭文','文字示意','利簋铭文记载武王征商。','场景使用现代释义牌连接器物与历史事件，不是原铭文拓本。',[-1.9,.65,1.4],[gui.id]),object('setting','周原式堂院','建筑线索与演绎','以正堂、侧厢和门庭形成有轴线的围合院落。','参考周原先周建筑的堂、室、厢房与院落组织，放入西周器物讲解。草泥屋面、柱梁和墙高为推定，右厢与前墙作展示性剖开；不复原利簋的使用地点。',[0,1.7,-2.3],[zhouArchitecture.id]),object('hearth','炊煮备器角','场景布置','鼎的炊煮用途与礼器身份可以一并观察。','灶火、容器和食物位置是教学组合，没有模拟真实烹饪，也不把这里当作商周家庭的普遍样貌。',[3.7,.5,-1.4],[food.id])],steps:[step('serve','把熟粮盛入簋','gui',2.8,'已观察簋与熟饭食的关系，场景中的粮食是示意。'),step('vessels','对照鼎与簋','tripod',2.3,'已比较器物分工。用途与礼仪含义可以同时存在。'),step('read','查看铭文线索','inscription',2,'已查看铭文解释。器物也能保存关于历史事件的文字。')],qa:[{question:'簋和鼎有什么不同？',answer:'簋用于盛放熟饭食；鼎与炊煮食物相关。商周时期它们也参与宴享、祭祀和身份表达。这里是器类关系示意，不是某一场典礼的复原。',sourceIds:[gui.id,food.id]},{question:'这是普通人家的饭桌吗？',answer:'不能这样理解。青铜礼器与特定的礼仪、身份情境有关；当前庭院和筵席是教学组合，不能代表所有商周家庭。',sourceIds:[food.id]}]},
- {id:'pre-qin-making',eraId:'pre-qin',kind:'casting',title:'铜从范中来',subtitle:'青铜范铸工坊',culture:'先秦 · 商代青铜铸造线索',question:'液态金属，怎样留下器物的形状？',description:'合范、观察浇注、开范，从空隙理解铸造。',accent:'#927044',ground:'#bbaa90',interpretation:'方鼎表达范铸关系，建筑另参考商代郭元咀台地工棚资料。土墙草顶、备泥坑与不规则地块是教学组合；不是后母戊鼎铸造地。外范分块、浇道、尺寸和时长经过简化，不是完整工艺复原。',sources:[cast,ding,shangArchitecture],objects:[object('mould','陶范与芯','制作结构示意','外范与芯之间留出的空间决定器壁的形状。','国博展览介绍由模制范、由范制芯、组合后浇铸。本模型用两侧外范和中心芯帮助观察空间。',[0,.95,1],[cast.id]),object('crucible','浇注容器','工序示意','合范后浇入金属，是范铸的一个环节。','容器形状与浇注姿态为艺术表现，不提供温度、配方或真实操作步骤。',[-2.65,.5,1.1],[cast.id]),object('bronze','方鼎成品','后母戊鼎形制线索','方腹与四柱足是参考器物的重要特征。','国博指出后母戊鼎身、足整体铸成，双耳另行装范浇铸。动画没有表现所有环节。',[2.8,.72,1.55],[ding.id]),object('store','泥墙房与制范棚','建筑线索与演绎','低矮泥墙房与开放木柱工棚围绕制范作业布置。','工棚与台地关系参考商代郭元咀遗址；地上泥墙草顶、屋架、晾置棚和备泥坑位置为推定，不是殷墟或郭元咀原貌，也不表示后母戊鼎在此铸造。',[-2.4,1.5,-2.6],[shangArchitecture.id]),object('furnace','炉火与备料角','工艺背景示意','浇注之前还涉及材料处理和熔炼。','炉形、燃料与篮筐为氛围示意，不提供配方、温度或可照做的操作流程。',[4.5,.65,-.1],[cast.id,shangArchitecture.id])],steps:[step('close','合拢外范，保留空隙','mould',2.8,'已观察外范与芯的组合，空隙是理解器壁成形的关键。'),step('pour','观察铜液进入陶范','mould',3.8,'已观察浇注示意；流动效果与时长不代表真实铸造。'),step('reveal','冷却后开范，观察器形','mould',3,'已观察成形关系。后母戊鼎的耳还需另行铸接，本演示没有完整复原。')],qa:[{question:'为什么需要芯？',answer:'外范与芯共同约束器壁。可以把两者之间的空隙理解为金属成形的空间。本模型简化了范块和浇道，不能代替工艺复原。',sourceIds:[cast.id]},{question:'后母戊鼎一次就铸好了吗？',answer:'不能把整件器物都说成一次铸好。国博资料指出鼎身与四足整体铸造，鼎耳在器身完成后另行装范浇铸。',sourceIds:[ding.id]}]},
- {id:'pre-qin-culture',eraId:'pre-qin',kind:'bells',title:'一钟，两音',subtitle:'曾侯乙钟庭',culture:'先秦 · 战国早期，曾侯乙墓线索',question:'同一口钟，为什么能听到两个音？',description:'对照两个击点，让钟声与铭文发生联系。',accent:'#456e66',ground:'#afb3a1',interpretation:'十口钟为原套65件的局部意象。建筑借鉴龙湾楚地层台、回廊与瓦材，属于跨遗址的区域文化演绎，不是曾国宫室或曾侯乙演奏现场的复原。屋面、木构、击点和合成声均为示意。',sources:[bells,chuArchitecture,chuTiles],objects:[object('bell','双音钟','文物结构线索','馆方资料说明每件钟可发出两个呈三度关系的音。','通过两个示意击点比较音高，不把合成声当作原钟音色。',[-.4,1.89,1.14],[bells.id]),object('rack','铜木钟架','组合结构示意','原套编钟有65件，悬挂在曲尺形钟架上。','当前仅有十口局部示意钟，曲尺架和悬挂层次经过艺术化简化，不是原套缩比陈列。',[-.15,2.14,-1.2],[bells.id]),object('marks','标音铭文','知识线索','铭文内容包含编号、标音和乐律。','这里用现代说明卡连接声音与文字，模型上的线条不冒充可释读的古代文字。',[-2.3,.99,1.4],[bells.id]),object('gallery','层台与楚式回廊','区域建筑参考','抬高的层台、瓦屋与转折回廊构成钟庭背景。','参考江汉地区龙湾楚宫的层台、回廊柱洞及出土瓦材。龙湾不是曾国宫室证据；本建筑是区域文化演绎，屋顶和红黑木构为推定，不是曾侯乙的真实演奏地点。',[-.4,2.15,-3.1],[chuArchitecture.id,chuTiles.id]),object('implements','击奏用具','演示道具','两个示意击点用于比较同一口钟的声音。','木槌与动作经过简化，不据模型判断原物演奏方法或力道。',[1.8,.84,3.1],[bells.id])],steps:[step('front','敲击正面示意点','bell',1.6,'已试听正面击点的合成音。'),step('side','敲击侧面示意点','bell',1.6,'已试听另一击点的合成音，比较同一口钟的双音关系。'),step('pair','连听双音，查看标音','bell',2.9,'已比较两个示意音并查看标音线索，声音与文字共同保存乐律知识。')],qa:[{question:'一口钟真的有两个音吗？',answer:'湖北省博物馆介绍曾侯乙编钟具有双音特征，两个音呈三度关系。当前两声由浏览器合成，只用于对照，不是实物音频。',sourceIds:[bells.id]},{question:'原套有多少口钟？',answer:'原套有65件，分三层八组悬于曲尺形钟架。当前十口模型只选取局部意象，数量和比例经过简化。',sourceIds:[bells.id]}]},
+ {id:'pre-qin-living',eraId:'pre-qin',kind:'feast',title:'一席之间',subtitle:'鼎簋与食器',culture:'西周早期 · 利簋与周原院落线索',question:'盛放食物的器物，也能讲述礼仪吗？',description:'从鼎与簋的分工，走近食物、器用与身份。',accent:'#57766d',ground:'#b6aa8b',interpretation:'簋参考利簋、鼎为器类示意；建筑另以周原院落组织为参考，屋顶与柱梁细部为艺术推定。不是同址出土组合、利簋使用地或普通家庭的复原；默认展示完整建筑，器物放在前庭供观察。',sources:[gui,food,zhouArchitecture],objects:[object('gui','方座双耳簋','利簋形制线索','圆腹、双耳与方座构成利簋的轮廓。','簋用于盛熟饭食，也进入宴享与祭祀情境。模型保留方座、兽首双耳与纹饰分区，细部为艺术化简化。',[-.85,.82,1.1],[gui.id]),object('tripod','三足鼎','器类示意','鼎与蒸煮食物的技术和饮食礼仪相关。','此鼎不对应某一件馆藏标本；与利簋组合用于比较用途，不用器物数量推定人物等级。',[1.8,.7,1],[food.id]),object('inscription','器内铭文','文字示意','利簋铭文记载武王征商。','场景使用现代释义牌连接器物与历史事件，不是原铭文拓本。',[-1.9,.65,1.4],[gui.id]),object('setting','周原式堂院','建筑线索与演绎','门塾、前庭、堂、后庭与后室沿纵深轴线依次展开。','参考周原先周建筑的堂、室、厢房与院落组织，放入西周器物讲解。草泥屋面、柱梁和墙高为推定，短厢位于后庭一侧；不复原利簋的使用地点。',[0,1.7,-2.3],[zhouArchitecture.id]),object('hearth','炊煮备器角','场景布置','鼎的炊煮用途与礼器身份可以一并观察。','灶火、容器和食物位置是教学组合，没有模拟真实烹饪，也不把这里当作商周家庭的普遍样貌。',[3.7,.5,-1.4],[food.id])],steps:[step('serve','把熟粮盛入簋','gui',2.8,'已观察簋与熟饭食的关系，场景中的粮食是示意。'),step('vessels','对照鼎与簋','tripod',2.3,'已比较器物分工。用途与礼仪含义可以同时存在。'),step('read','查看铭文线索','inscription',2,'已查看铭文解释。器物也能保存关于历史事件的文字。')],qa:[{question:'簋和鼎有什么不同？',answer:'簋用于盛放熟饭食；鼎与炊煮食物相关。商周时期它们也参与宴享、祭祀和身份表达。这里是器类关系示意，不是某一场典礼的复原。',sourceIds:[gui.id,food.id]},{question:'这是普通人家的饭桌吗？',answer:'不能这样理解。青铜礼器与特定的礼仪、身份情境有关；当前庭院和筵席是教学组合，不能代表所有商周家庭。',sourceIds:[food.id]}]},
+ {id:'pre-qin-making',eraId:'pre-qin',kind:'casting',title:'铜从范中来',subtitle:'青铜范铸工坊',culture:'先秦 · 商代青铜铸造线索',question:'液态金属，怎样留下器物的形状？',description:'合范、观察浇注、开范，从空隙理解铸造。',accent:'#927044',ground:'#bbaa90',interpretation:'方鼎表达范铸关系，建筑另参考商代郭元咀台地工棚资料。土墙草顶、备泥坑与不规则地块是教学组合；不是后母戊鼎铸造地。外范分块、浇道、尺寸和时长经过简化，不是完整工艺复原。',sources:[cast,ding,shangArchitecture],objects:[object('mould','陶范与芯','制作结构示意','外范与芯之间留出的空间决定器壁的形状。','国博展览介绍由模制范、由范制芯、组合后浇铸。本模型用两侧外范和中心芯帮助观察空间。',[0,.95,1],[cast.id]),object('crucible','浇注容器','工序示意','合范后浇入金属，是范铸的一个环节。','容器形状与浇注姿态为艺术表现，不提供温度、配方或真实操作步骤。',[-2.65,.5,1.1],[cast.id]),object('bronze','方鼎成品','后母戊鼎形制线索','方腹与四柱足是参考器物的重要特征。','国博指出后母戊鼎身、足整体铸成，双耳另行装范浇铸。动画没有表现所有环节。',[2.8,.72,1.55],[ding.id]),object('store','独立泥墙储料屋','建筑线索与演绎','低矮储料屋与斜置工棚分散在开放土场上。','工棚与台地关系参考商代郭元咀遗址；地上泥墙草顶、屋架、晾置棚和备泥坑位置为推定，不是殷墟或郭元咀原貌，也不表示后母戊鼎在此铸造。',[7.15,1.2,-4.7],[shangArchitecture.id]),object('furnace','炉火与备料角','工艺背景示意','浇注之前还涉及材料处理和熔炼。','炉形、燃料与篮筐为氛围示意，不提供配方、温度或可照做的操作流程。',[4.5,.65,-.1],[cast.id,shangArchitecture.id])],steps:[step('close','合拢外范，保留空隙','mould',2.8,'已观察外范与芯的组合，空隙是理解器壁成形的关键。'),step('pour','观察铜液进入陶范','mould',3.8,'已观察浇注示意；流动效果与时长不代表真实铸造。'),step('reveal','冷却后开范，观察器形','mould',3,'已观察成形关系。后母戊鼎的耳还需另行铸接，本演示没有完整复原。')],qa:[{question:'为什么需要芯？',answer:'外范与芯共同约束器壁。可以把两者之间的空隙理解为金属成形的空间。本模型简化了范块和浇道，不能代替工艺复原。',sourceIds:[cast.id]},{question:'后母戊鼎一次就铸好了吗？',answer:'不能把整件器物都说成一次铸好。国博资料指出鼎身与四足整体铸造，鼎耳在器身完成后另行装范浇铸。',sourceIds:[ding.id]}]},
+ {id:'pre-qin-culture',eraId:'pre-qin',kind:'bells',title:'一钟，两音',subtitle:'曾侯乙钟庭',culture:'先秦 · 战国早期，曾侯乙墓线索',question:'同一口钟，为什么能听到两个音？',description:'对照两个击点，让钟声与铭文发生联系。',accent:'#456e66',ground:'#afb3a1',interpretation:'十口钟为原套65件的局部意象。建筑借鉴龙湾楚地层台、回廊与瓦材，属于跨遗址的区域文化演绎，不是曾国宫室或曾侯乙演奏现场的复原。屋面、木构、击点和合成声均为示意。',sources:[bells,chuArchitecture,chuTiles],objects:[object('bell','双音钟','文物结构线索','馆方资料说明每件钟可发出两个呈三度关系的音。','通过两个示意击点比较音高，不把合成声当作原钟音色。',[-.4,2.55,1.14],[bells.id]),object('rack','铜木钟架','组合结构示意','原套编钟有65件，悬挂在曲尺形钟架上。','当前仅有十口局部示意钟，曲尺架和悬挂层次经过艺术化简化，不是原套缩比陈列。',[-.15,2.8,-1.2],[bells.id]),object('marks','标音铭文','知识线索','铭文内容包含编号、标音和乐律。','这里用现代说明卡连接声音与文字，模型上的线条不冒充可释读的古代文字。',[-2.3,1.65,1.4],[bells.id]),object('gallery','层台与乐器前坪','区域建筑参考','收分台基托起主厅，前坪与侧向登阶连接不同高度。','参考江汉地区龙湾楚宫的层台、回廊柱洞及出土瓦材。龙湾不是曾国宫室证据；本建筑是区域文化演绎，屋顶和红黑木构为推定，不是曾侯乙的真实演奏地点。',[-.4,1.5,1.5],[chuArchitecture.id,chuTiles.id]),object('implements','击奏用具','演示道具','两个示意击点用于比较同一口钟的声音。','木槌与动作经过简化，不据模型判断原物演奏方法或力道。',[1.8,1.5,3.1],[bells.id])],steps:[step('front','敲击正面示意点','bell',1.6,'已试听正面击点的合成音。'),step('side','敲击侧面示意点','bell',1.6,'已试听另一击点的合成音，比较同一口钟的双音关系。'),step('pair','连听双音，查看标音','bell',2.9,'已比较两个示意音并查看标音线索，声音与文字共同保存乐律知识。')],qa:[{question:'一口钟真的有两个音吗？',answer:'湖北省博物馆介绍曾侯乙编钟具有双音特征，两个音呈三度关系。当前两声由浏览器合成，只用于对照，不是实物音频。',sourceIds:[bells.id]},{question:'原套有多少口钟？',answer:'原套有65件，分三层八组悬于曲尺形钟架。当前十口模型只选取局部意象，数量和比例经过简化。',sourceIds:[bells.id]}]},
 {
  "id": "qin-han-living",
  "eraId": "qin-han",
@@ -155,8 +159,8 @@ export const exhibits:Exhibit[]=[
    "id": "room",
    "name": "灯室与瓦屋",
    "kind": "建筑线索与演绎",
-   "fact": "低案与席地空间放在一间可观察的室内剖面中。",
-   "detail": "参考汉代建筑明器中的房屋、门窗与院落线索；明器带有墓葬象征性，不能当作窦绾真实住宅。瓦屋、比例、窗格和陈设为推定，东部屋面与前壁剖开便于观察。",
+   "fact": "一座深进瓦屋分出前堂与后室，侧面连接井院。",
+   "detail": "参考汉代建筑明器中的房屋、门窗与院落线索；明器带有墓葬象征性，不能当作窦绾真实住宅。瓦屋、比例、窗格和陈设为推定，默认屋面和墙体完整；点选灯室或灯具后展开，返回全景合拢。",
    "position": [
     0,
     1.6,
@@ -222,7 +226,7 @@ export const exhibits:Exhibit[]=[
   },
   {
    "question": "这座建筑是原样复原的吗？",
-   "answer": "参考汉代建筑明器中的房屋、门窗与院落线索；明器带有墓葬象征性，不能当作窦绾真实住宅。瓦屋、比例、窗格和陈设为推定，东部屋面与前壁剖开便于观察。",
+   "answer": "参考汉代建筑明器中的房屋、门窗与院落线索；明器带有墓葬象征性，不能当作窦绾真实住宅。瓦屋、比例、窗格和陈设为推定，默认屋面和墙体完整；点选灯室或灯具后展开，返回全景合拢。",
    "sourceIds": [
     "nmc-han-buildings"
    ]
@@ -314,10 +318,10 @@ export const exhibits:Exhibit[]=[
   },
   {
    "id": "workshop",
-   "name": "长廊织坊",
+   "name": "多开间织造长屋",
    "kind": "建筑线索与演绎",
-   "fact": "织机、备料棚和晾布空地共同组织作业空间。",
-   "detail": "汉代建筑明器提供房屋和院落分区的参考；老官山出土织机模型没有记录真实厂房。长条屋面、开敞侧面和织物位置均为教学推定，不还原成都某座工坊。",
+   "fact": "横向连续开间容纳织造与存料，屋前留出整纱空地。",
+   "detail": "汉代建筑明器提供房屋和院落分区的参考；老官山出土织机模型没有记录真实厂房。连续长屋、端部存料间与前方纱架均为教学推定；点选屋面或器物展开内部，不还原成都某座工坊。",
    "position": [
     -3.5,
     1.5,
@@ -391,7 +395,7 @@ export const exhibits:Exhibit[]=[
   },
   {
    "question": "这座建筑是原样复原的吗？",
-   "answer": "汉代建筑明器提供房屋和院落分区的参考；老官山出土织机模型没有记录真实厂房。长条屋面、开敞侧面和织物位置均为教学推定，不还原成都某座工坊。",
+   "answer": "汉代建筑明器提供房屋和院落分区的参考；老官山出土织机模型没有记录真实厂房。连续长屋、端部存料间与前方纱架均为教学推定；点选屋面或器物展开内部，不还原成都某座工坊。",
    "sourceIds": [
     "silk-laoguanshan",
     "nmc-han-buildings"
@@ -493,10 +497,10 @@ export const exhibits:Exhibit[]=[
   },
   {
    "id": "office",
-   "name": "文书廊屋",
+   "name": "街巷内的署舍",
    "kind": "建筑线索与演绎",
    "fact": "简牍记录与城址、道路和房间组织形成联系。",
-   "detail": "里耶保留建筑基址、排水、城墙和古井等线索。模型中的廊屋、瓦顶与书架是教学性组合，不能据此断言某间房专门处理了这些文书。",
+   "detail": "里耶保留建筑基址、排水、城墙和古井等线索。丁字街、土墙偏门、紧凑署舍与文书附室是教学性组合；点选署舍或简牍后展开屋顶，不能据此断言某间房专门处理了这些文书。",
    "position": [
     -1.2,
     1.35,
@@ -562,7 +566,7 @@ export const exhibits:Exhibit[]=[
   },
   {
    "question": "这座建筑是原样复原的吗？",
-   "answer": "里耶保留建筑基址、排水、城墙和古井等线索。模型中的廊屋、瓦顶与书架是教学性组合，不能据此断言某间房专门处理了这些文书。",
+   "answer": "里耶保留建筑基址、排水、城墙和古井等线索。丁字街、土墙偏门、紧凑署舍与文书附室是教学性组合；点选署舍或简牍后展开屋顶，不能据此断言某间房专门处理了这些文书。",
    "sourceIds": [
     "hunan-liye-city"
    ]
@@ -570,7 +574,10 @@ export const exhibits:Exhibit[]=[
  ]
 }
 ];
-exhibits.push(...weiJinExhibits,...tangExhibits,...songExhibits,...mingQingExhibits,...modernExhibits);
+exhibits.forEach(expandEarlyContent);
+exhibits.push(...weiJinExhibits,...tangExhibits,...songExhibits,...mingQingExhibits,...modernExhibits,...newEraExhibits);
+exhibits.forEach(expandMiddleContent);
+exhibits.forEach(expandLateContent);
 export const getExhibit=(id:string)=>exhibits.find(s=>s.id===id);
 export function exhibitSources(s:Exhibit,objectId:string|null){const o=s.objects.find(o=>o.id===objectId);return s.sources.filter(source=>!o||o.sourceIds.includes(source.id));}
 export function exhibitPreset(s:Exhibit,question:string,objectId:string|null,actions:string[]=[]){

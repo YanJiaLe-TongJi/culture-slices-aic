@@ -1,9 +1,10 @@
+import {HanResidence,HanWeavingHouse,QinStreetOffice} from './PeriodArchitecture';
 import {useEffect,useMemo,useRef,type ReactNode} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as T from 'three';
 import type {Point} from './exhibits';
 import type {ActionClock} from './exhibit-state';
-import {QinHanGround,LampRoom,WeavingYard,SlipsOffice} from './QinHanArchitecture';
+import {QinHanGround} from './QinHanArchitecture';
 import {Mat} from './DioramaPrimitives';
 import ChangxinLamp from './ChangxinLamp';
 const clamp=(n:number)=>Math.max(0,Math.min(1,n));
@@ -49,6 +50,6 @@ function SlipsModel({value,wrap}:ModelProps){
  <group ref={answer} position={[0,.54,-1]}><TextTile text='6 × 9 = 54' w={1.8} h={.4} c='#cab384'/></group><Rod a={[-1.1,.5,1.15]} b={[-.4,.56,1.5]} r={.025}/><Bowl r={.18} h={.1} c='#4b4637'/></>;
 }
 
-export function LampCourt(p:ModelProps){return <><QinHanGround plan='lamp'/>{p.wrap('room',<LampRoom/>)}<group position={[0,.43,1.05]} scale={.8}><ChangxinLamp {...p}/></group>{p.wrap('mat',<group position={[2.85,.46,.7]}><Mat w={1.5} d={2.3}/><group position={[0,.1,0]}><Hit s={[1.55,.2,2.4]}/></group></group>)}</>;}
-export function LoomCourt(p:ModelProps){return <><QinHanGround plan='loom'/>{p.wrap('workshop',<WeavingYard/>)}<group position={[.45,.13,.1]}><LoomModel {...p}/></group>{p.wrap('yarn',<group position={[3.4,.2,-1]}><Bench size={[1.4,.1,1.25]}/>{[0,1,2,3].map(i=><group key={i} position={[-.45+(i%2)*.6,.58,-.3+Math.floor(i/2)*.6]} rotation={[0,0,Math.PI/2]}><Rod a={[0,-.25,0]} b={[0,.25,0]} r={.045}/><mesh castShadow><cylinderGeometry args={[.14,.14,.3,20]}/><meshStandardMaterial color={i%2?'#d0b784':'#a8755f'}/></mesh>{[-.18,.18].map(y=><mesh key={y} position={[0,y,0]}><cylinderGeometry args={[.2,.2,.06,16]}/><meshStandardMaterial color='#896543'/></mesh>)}</group>)}<group position={[0,.5,0]}><Hit s={[1.5,.8,1.4]}/></group></group>)}</>;}
-export function SlipsCourt(p:ModelProps){return <><QinHanGround plan='slips'/>{p.wrap('office',<SlipsOffice/>)}<group position={[.25,.27,.85]} scale={.83}><SlipsModel {...p}/></group>{p.wrap('well',<group position={[4.3,.15,2.4]}><Box p={[0,.32,.8]} s={[1.95,.13,.2]} c='#9e815a'/><Hit s={[2,.8,2]}/></group>)}</>;}
+export function LampCourt(p:ModelProps){return <><QinHanGround plan='lamp'/><HanResidence wrap={p.wrap} selected={p.selected}/><group position={[0,.43,1.05]} scale={.8}><ChangxinLamp {...p}/></group>{p.wrap('mat',<group position={[2.85,.46,.7]}><Mat w={1.5} d={2.3}/><Box p={[0,.19,-.4]} s={[1.45,.22,.66]} c='#633a2a'/><Box p={[0,.31,-.4]} s={[1.5,.045,.72]} c='#343d33'/><group position={[0,.1,0]}><Hit s={[1.55,.2,2.4]}/></group></group>)}</>;}
+export function LoomCourt(p:ModelProps){return <><QinHanGround plan='loom'/><HanWeavingHouse wrap={p.wrap} selected={p.selected}/><group position={[.45,.13,.1]}><LoomModel {...p}/></group>{p.wrap('yarn',<group position={[3.4,.2,-1]}><Bench size={[1.4,.1,1.25]}/>{[0,1,2,3].map(i=><group key={i} position={[-.45+(i%2)*.6,.58,-.3+Math.floor(i/2)*.6]} rotation={[0,0,Math.PI/2]}><Rod a={[0,-.25,0]} b={[0,.25,0]} r={.045}/><mesh castShadow><cylinderGeometry args={[.14,.14,.3,20]}/><meshStandardMaterial color={i%2?'#d0b784':'#a8755f'}/></mesh>{[-.18,.18].map(y=><mesh key={y} position={[0,y,0]}><cylinderGeometry args={[.2,.2,.06,16]}/><meshStandardMaterial color='#896543'/></mesh>)}</group>)}<group position={[0,.5,0]}><Hit s={[1.5,.8,1.4]}/></group></group>)}</>;}
+export function SlipsCourt(p:ModelProps){return <><QinHanGround plan='slips'/><QinStreetOffice wrap={p.wrap} selected={p.selected}/><group position={[.25,.27,.85]} scale={.83}><SlipsModel {...p}/></group></>;}

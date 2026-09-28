@@ -1,3 +1,4 @@
+import {positionEarlyCamera} from './early-camera.mjs';
 import {createRequire} from 'node:module';
 import {writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -9,7 +10,7 @@ try{for(const s of songExhibits){
  const p=await browser.newPage({viewport:{width:1440,height:1000}});p.on('pageerror',e=>errors.push(e.message));
  await p.goto(`${base}/#/scene/${s.id}`,{waitUntil:'networkidle'});await p.getByRole('button',{name:'开始探索',exact:true}).click();await p.mouse.move(10,10);await p.waitForTimeout(1400);
  assert.equal(await p.getByRole('tooltip').count(),0);assert.equal(await p.locator('canvas').evaluate(canvas=>!!canvas.getContext('webgl2')),true);
- const r=await p.locator('canvas').boundingBox(),cam=new T.OrthographicCamera(-r.width/2,r.width/2,r.height/2,-r.height/2,.1,80);cam.position.set(8,9.65,12);cam.lookAt(0,.65,0);cam.zoom=Math.min(62,r.width/18.5,r.height/14.5);cam.updateProjectionMatrix();cam.updateMatrixWorld();const v=new T.Vector3(...(s.kind==='landscape'?[1.4,3,-1.6]:s.objects[0].position)).project(cam);
+ const r=await p.locator('canvas').boundingBox(),cam=new T.OrthographicCamera(-r.width/2,r.width/2,r.height/2,-r.height/2,.1,80);positionEarlyCamera(cam,r,s.kind);const v=new T.Vector3(...(s.kind==='landscape'?[1.4,3,-1.6]:s.objects[0].position)).project(cam);
  const expected=p.getByRole('tooltip',{name:s.objects[0].name,exact:true});let found=false;
  for(const [dx,dy] of [[0,0],[-12,0],[12,0],[0,-18],[0,18],[-25,-20],[25,20]]){await p.mouse.move(r.x+(v.x+1)*r.width/2+dx,r.y+(1-v.y)*r.height/2+dy);await p.waitForTimeout(180);if(await expected.count()){found=true;break;}}
  assert.ok(found,`${s.id} first object must be discoverable by pointer`);await p.mouse.down();await p.mouse.up();await p.getByRole('heading',{name:s.objects[0].name,exact:true}).waitFor();await p.mouse.move(10,10);
