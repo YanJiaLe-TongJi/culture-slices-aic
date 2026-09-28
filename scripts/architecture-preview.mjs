@@ -1,0 +1,4 @@
+import {createRequire} from 'node:module';
+import {exhibits} from '../src/exhibits.ts';
+const {chromium}=createRequire(import.meta.url)(process.argv[2]||'playwright');const b=await chromium.launch({channel:'msedge',headless:true});
+try{for(const s of exhibits.filter(s=>process.env.ERA_ID?s.eraId===process.env.ERA_ID:true)){const p=await b.newPage({viewport:{width:1440,height:1000}});p.on('pageerror',e=>console.log('ERROR',e.message));await p.goto(`http://127.0.0.1:5173/#/scene/${s.id}`,{waitUntil:'networkidle'});await p.getByRole('button',{name:'开始探索',exact:true}).click();await p.getByRole('button',{name:'收起手册',exact:true}).click();await p.mouse.move(10,10);await p.waitForTimeout(1700);await p.screenshot({path:`artifacts/architecture-${s.kind}-overview.png`});if(process.env.CAPTURE_COVERS==='1')await p.locator('canvas').screenshot({path:`public/images/${s.id}.png`});console.log(s.id);await p.close();}}finally{await b.close();}

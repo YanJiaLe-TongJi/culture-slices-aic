@@ -1,0 +1,66 @@
+// Optional browser smoke test. Pass a Playwright module directory as argv[2]
+// when Playwright is provided by a shared runtime instead of this project.
+import { createRequire } from 'node:module';
+import { mkdir, writeFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.argv[2]||'playwright');
+const browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'msedge',headless:true,args:['--enable-webgl','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+const page=await context.newPage();
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await mkdir('artifacts',{recursive:true});
+try{
+  await page.goto('http://127.0.0.1:5173/#/scene/peiligang-grain',{waitUntil:'networkidle'});
+  await page.getByRole('button',{name:'开始探索',exact:true}).waitFor();
+  await page.screenshot({path:'artifacts/01-entry.png',fullPage:true});
+  await page.getByRole('button',{name:'开始探索',exact:true}).click();
+  await page.locator('.zone-switcher').getByRole('button',{name:/屋前磨粮/}).click();
+  await page.locator('.object-switcher').getByRole('button',{name:/石磨盘/}).click();
+  await page.getByRole('heading',{name:'石磨盘',exact:true}).waitFor();
+  await page.screenshot({path:'artifacts/02-explore.png',fullPage:true});
+  await page.locator('.object-switcher').getByRole('button',{name:/石磨棒/}).click();
+  await page.locator('.object-switcher').getByRole('button',{name:/谷物/}).click();
+  await page.getByRole('button',{name:'将谷物放上磨盘'}).click();
+  await page.getByRole('button',{name:'动手加工'}).click();
+  const track=page.getByRole('slider');await track.waitFor();
+  const rect=await track.boundingBox();
+  await page.mouse.move(rect.x+30,rect.y+25);await page.mouse.down();
+  for(let i=0;i<3;i++){await page.mouse.move(rect.x+rect.width-30,rect.y+25,{steps:20});await page.mouse.move(rect.x+30,rect.y+25,{steps:20});}
+  await page.mouse.up();
+  await page.getByRole('dialog').waitFor();
+  assert.match(await page.getByRole('dialog').innerText(),/已体验磨棒/);
+  await page.screenshot({path:'artifacts/03-recap.png',fullPage:true});
+  await page.getByRole('button',{name:'继续探索与提问'}).click();
+  await page.getByRole('button',{name:/为什么石面有凹陷/}).click();
+  await page.locator('.message.assistant').waitFor();
+  assert.match(await page.locator('.message.assistant').innerText(),/国博资料/);
+  await page.screenshot({path:'artifacts/04-chat.png',fullPage:true});
+  await page.getByRole('button',{name:'资料',exact:true}).click();
+  assert.equal(await page.getByRole('link',{name:'阅读馆方原文'}).getAttribute('href'),'https://www.chnmuseum.cn/zp/zpml/kgfjp/202008/t20200824_247226.shtml');
+  await page.reload({waitUntil:'networkidle'});
+  const restored=await page.evaluate(()=>JSON.parse(localStorage.getItem('culture-slice:progress:v1')));
+  assert.ok(restored.actions.includes('ground'));assert.equal(restored.viewed.length,3);
+  await page.getByRole('button',{name:'我的发现'}).click();await page.getByRole('dialog').waitFor();
+  await page.getByRole('button',{name:'关闭探索回顾'}).click();
+  await page.getByRole('button',{name:'重新开始',exact:true}).click();
+  const reset=await page.evaluate(()=>JSON.parse(localStorage.getItem('culture-slice:progress:v1')));
+  assert.equal(reset.viewed.length,0);assert.equal(reset.actions.length,0);
+  await page.locator('.zone-switcher').getByRole('button',{name:/屋前磨粮/}).click();
+  await page.getByRole('button',{name:'将谷物放上磨盘'}).click();
+  await page.getByRole('button',{name:'▷ 观看演示',exact:true}).click();
+  await page.getByRole('dialog').waitFor({timeout:12000});
+  await page.getByRole('button',{name:'关闭探索回顾'}).click();
+  await page.setViewportSize({width:850,height:900});
+  await page.getByRole('button',{name:'探索手册',exact:true}).click();
+  await page.screenshot({path:'artifacts/05-narrow.png',fullPage:true});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth),false);
+  await page.setViewportSize({width:1440,height:1000});
+  const frames=await page.evaluate(()=>new Promise(resolve=>{const samples=[];let last=performance.now();const start=last;function next(now){samples.push(now-last);last=now;if(now-start<2500)requestAnimationFrame(next);else resolve({averageFps:Math.round(1000/(samples.reduce((a,b)=>a+b)/samples.length)),frames:samples.length});}requestAnimationFrame(next);}));
+  const response=await page.request.post('http://127.0.0.1:5173/api/chat',{data:{sceneId:'peiligang-grain',objectId:'slab',actions:['placed'],question:'为什么石面有凹陷？',history:[]}});
+  assert.equal(response.status(),200);assert.equal((await response.json()).mode,'preset');
+  assert.deepEqual(errors,[]);
+  const result={browser:browser.version(),renderer:'SwiftShader (headless software rendering)',viewport:'1440x1000',frames,checks:['entry','object selection','manual grind','recap','preset answer','source link','persistence','reset','demo','narrow viewport','offline API'],errors};
+  await writeFile('artifacts/browser-results.json',JSON.stringify(result,null,2));
+  console.log(JSON.stringify(result,null,2));
+}finally{await browser.close();}
